@@ -14,6 +14,7 @@
 
 using namespace std;
 
+// Функция для вычисления экспоненциального скользящего среднего
 double calculateEMA(const std::vector<double>& data, double alpha) {
     double ema = data[0];
     for (size_t i = 1; i < data.size(); ++i) {
@@ -22,10 +23,11 @@ double calculateEMA(const std::vector<double>& data, double alpha) {
     return ema;
 }
 
+// Функция для выполнения EMA
 void emaSearchStr(int repetitions) {
-    std::vector<double> data;
+    std::vector<double> data(1000);
     for (int i = 0; i < 1000; ++i) {
-        data.push_back(static_cast<double>(rand()) / RAND_MAX);
+        data[i] = static_cast<double>(rand()) / RAND_MAX;
     }
 
     for (int i = 0; i < repetitions; ++i) {
@@ -33,6 +35,7 @@ void emaSearchStr(int repetitions) {
     }
 }
 
+// Функция для алгоритма Дейкстры
 void dijkstra(const vector<vector<pair<int, int> > >& graph, int start) {
     int n = graph.size();
     vector<int> dist(n, numeric_limits<int>::max());
@@ -60,8 +63,8 @@ void dijkstra(const vector<vector<pair<int, int> > >& graph, int start) {
     }
 }
 
+// Функция для выполнения кратчайшего пути
 void shortPath(int repetitions) {
-    // Создаем граф с 1000 вершинами и случайными ребрами
     int n = 1000;
     vector<vector<pair<int, int> > > graph(n);
 
@@ -78,6 +81,7 @@ void shortPath(int repetitions) {
     }
 }
 
+// Функция для операций с файлами
 void fileOperations(int repetitions) {
     int fd = lab2_open("testfile.txt");
     if (fd == -1) {
@@ -98,6 +102,7 @@ void fileOperations(int repetitions) {
     lab2_close(fd);
 }
 
+// Главная функция
 int main(int argc, char* argv[]) {
     if (argc != 3) {
         std::cerr << "Использование: " << argv[0] << " <количество повторений ema> <количество повторений sp>" << std::endl;
@@ -109,17 +114,17 @@ int main(int argc, char* argv[]) {
 
     clock_t start = clock();
 
-    std::thread emaThread(emaSearchStr, emaRepetitions);
-    std::thread spThread(shortPath, spRepetitions);
-    std::thread fileThread(fileOperations, spRepetitions);
+    std::thread emaThread([emaRepetitions]() { emaSearchStr(emaRepetitions); });
+    std::thread spThread([spRepetitions]() { shortPath(spRepetitions); });
+    std::thread fileThread([spRepetitions]() { fileOperations(spRepetitions); });
 
     emaThread.join();
     spThread.join();
     fileThread.join();
 
     clock_t end = clock();
+    double elapsed_time = double(end - start) / CLOCKS_PER_SEC; 
 
-    double elapsed_time = double(end - start) / CLOCKS_PER_SEC;
     std::cout << "Общее время выполнения: " << elapsed_time << " секунд" << std::endl;
 
     return 0;

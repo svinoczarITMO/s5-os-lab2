@@ -3,6 +3,9 @@
 #include <chrono>
 #include <cstring>
 #include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "cache_block.h"
 
 const size_t BLOCK = 16 * 1024;
@@ -11,8 +14,6 @@ void read_block(int fd, std::vector<char>& block) {
     ssize_t bytes_read = lab2_read(fd, block.data(), block.size());
     if (bytes_read == -1) {
         std::cerr << "Ошибка чтения блока\n";
-    } else {
-        std::cerr << "Прочитано байт: " << bytes_read << "\n";
     }
 }
 
@@ -27,7 +28,6 @@ void write_block(int fd, const std::vector<char>& block) {
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> result = end - start;
     std::cout << "time: " << result.count() << " sec" << std::endl;
-    std::cerr << "Записано байт: " << written << "\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
 
     std::string path = argv[1];
     int n = std::stoi(argv[2]);
+
     int fd_read = lab2_open(path.c_str());
     if (fd_read == -1) {
         std::cerr << "Ошибка открытия файла для чтения\n";
@@ -54,7 +55,6 @@ int main(int argc, char* argv[]) {
     std::vector<char> block(BLOCK, 0);
 
     for (int i = 0; i < n; ++i) {
-        std::cerr << "Итерация: " << i << "\n";
         read_block(fd_read, block);
         write_block(fd_write, block);
     }
